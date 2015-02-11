@@ -1,0 +1,5 @@
+
+        [ckan.plugins]
+        # Add plugins here, e.g.
+         ngsipreview=ckanext.ngsipreview.plugin:NGSIPreview
+    
