@@ -20,4 +20,6 @@ Install this extension in your CKAN is instance is as easy as intall any other C
 * Modify your configuration file (generally in `/etc/ckan/default/production.ini`) and add `ngsipreview` in the `ckan.plugins` setting. 
 * Restart your apache2 reserver (`sudo service apache2 restart`)
 
+How it works?
+------------
 [How it works?](https://github.com/gzarrub/ckanext-ngsipreview/blob/master/ckanext/ngsipreview/instructions/how-it-works.md)
