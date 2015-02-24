@@ -84,10 +84,10 @@ class NGSIPreview(p.SingletonPlugin):
                     details = "In order to see this resource properly, you need to be logged in"
                     h.flash_error(details, allow_html=False)
                     return {'can_preview': False, 'fixable': details, 'quality': 2}
-                elif self.check_query(resource) and request.path.find(pattern) != -1 and not self.oauth2_is_enabled:
-                    details = "Enable oauth2 extension"
-                    h.flash_error(details, allow_html=False)
-                    return {'can_preview': False, 'fixable': details, 'quality': 2}
+#                elif self.check_query(resource) and request.path.find(pattern) != -1 and not self.oauth2_is_enabled:
+#                    details = "Enable oauth2 extension"
+#                    h.flash_error(details, allow_html=False)
+#                    return {'can_preview': False, 'fixable': details, 'quality': 2}
                 elif (resource['url'].lower().find('/querycontext') != -1
                       and request.path.find(pattern) != -1 and 'payload' not in resource):
                     details = "Add a payload to complete the query"

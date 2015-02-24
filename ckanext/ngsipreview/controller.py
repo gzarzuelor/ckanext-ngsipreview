@@ -36,8 +36,8 @@ def proxy_ngsi_resource(context, data_dict):
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
     url = resource['url']
-    token = p.toolkit.c.usertoken['access_token']
-
+#    token = p.toolkit.c.usertoken['access_token']
+    token = '0vm3yTQ0MzuLaFR7GDJgVFcKRU0n9Swtzp82CpSvFllTOwUA8oRGiYZdqqnVhVnJIkEzXfYtwayRakSHPmfaGQ'
     parts = urlparse.urlsplit(url)
     if not parts.scheme or not parts.netloc:
         base.abort(409, detail='Invalid URL.')
@@ -56,7 +56,7 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.charset = r.encoding
             if r.status_code == 401:
                 log.info('ERROR 401 token expired. Retrieving new token and retrying...')
-                p.toolkit.c.usertoken_refresh()
+#                p.toolkit.c.usertoken_refresh()
                 if count == 2:
                     base.abort(409, detail='Cannot retrieve a new token.')
                     break
