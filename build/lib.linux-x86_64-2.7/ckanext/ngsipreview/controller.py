@@ -1,20 +1,6 @@
-#!/usr/bin/env python
-# Copyright 2015 Telefonica Investigacion y Desarrollo, S.A.U
-#
-# This file is part of ckanext-ngsipreview.
-#
-# Ckanext-ngsipreview is free software: you can redistribute it and/or
-# modify it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# FlaskContextProvider is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero
-# General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with Orion Context Broker. If not, see http://www.gnu.org/licenses/.
+import urllib2
+import urllib
+from ckan.common import json
 
 from logging import getLogger
 import urlparse
@@ -22,12 +8,34 @@ import requests
 
 import ckan.logic as logic
 import ckan.lib.base as base
+import ckan.plugins.toolkit as toolkit
 import ckan.plugins as p
 
 log = getLogger(__name__)
 
 MAX_FILE_SIZE = 1024 * 1024  # 1MB
 CHUNK_SIZE = 512
+
+######################################
+def GetAuthToken(user,password):
+#This function is no need at ckan extension owing to X-Auth-Token is provided by another ex$
+        data = {
+                "auth": {
+                        "passwordCredentials":{
+                                "username":user,
+                                "password":password,
+                        }
+                }
+        }
+        payload = json.dumps(data)
+        request = urllib2.Request("http://cloud.lab.fi-ware.org:4730/v2.0/tokens",payload)
+        request.add_header("Content-Type","application/json")
+        response = urllib2.urlopen(request)
+        assert response.code == 200
+        jresponse = json.loads(response.read())
+        return jresponse['access']['token']['id']
+
+######################################
 
 
 def proxy_ngsi_resource(context, data_dict):
@@ -36,8 +44,8 @@ def proxy_ngsi_resource(context, data_dict):
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
     url = resource['url']
-    token = '0vm3yTQ0MzuLaFR7GDJgVFcKRU0n9Swtzp82CpSvFllTOwUA8oRGiYZdqqnVhVnJIkEzXfYtwayRakSHPmfaGQ'
-
+    #token = p.toolkit.c.usertoken['access_token']
+    token = GetAuthToken("guillermo-zarzuelo-1","29Zarzu")
     parts = urlparse.urlsplit(url)
     if not parts.scheme or not parts.netloc:
         base.abort(409, detail='Invalid URL.')
@@ -51,24 +59,25 @@ def proxy_ngsi_resource(context, data_dict):
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
-            r.raise_for_status()
+#            r.raise_for_status()
             base.response.content_type = r.headers['content-type']
             base.response.charset = r.encoding
             if r.status_code == 401:
                 log.info('ERROR 401 token expired. Retrieving new token and retrying...')
+#                p.toolkit.c.usertoken_refresh()
                 if count == 2:
                     base.abort(409, detail='Cannot retrieve a new token.')
                     break
                 count += 1
             else:
                 break
-       	length = 0
-       	for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
-      	    base.response.body_file.write(chunk)
-       	    length += len(chunk)
-       	    if length >= MAX_FILE_SIZE:
-       	        details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
-       	        base.abort(409, headers={'content-encoding': ''}, detail=details)
+        length = 0
+        for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+            base.response.body_file.write(chunk)
+            length += len(chunk)
+            if length >= MAX_FILE_SIZE:
+                details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
+                base.abort(409, headers={'content-encoding': ''}, detail=details)
 
     except:
         details = 'Could not proxy ngsi_resource.\nWe are working to resolve this issue as quickly as possible'
