@@ -70,7 +70,7 @@ def proxy_ngsi_resource(context, data_dict):
        	        details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
        	        base.abort(409, headers={'content-encoding': ''}, detail=details)
 
-    except:
+    except requests.RequestException:
         details = 'Could not proxy ngsi_resource.\nWe are working to resolve this issue as quickly as possible'
         base.abort(409, detail=details)
 
