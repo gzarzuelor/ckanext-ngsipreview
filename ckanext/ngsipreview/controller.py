@@ -36,7 +36,7 @@ def proxy_ngsi_resource(context, data_dict):
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
     url = resource['url']
-    token = '0vm3yTQ0MzuLaFR7GDJgVFcKRU0n9Swtzp82CpSvFllTOwUA8oRGiYZdqqnVhVnJIkEzXfYtwayRakSHPmfaGQ'
+    token = p.toolkit.c.usertoken['access_token']
 
     parts = urlparse.urlsplit(url)
     if not parts.scheme or not parts.netloc:
@@ -56,19 +56,20 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.charset = r.encoding
             if r.status_code == 401:
                 log.info('ERROR 401 token expired. Retrieving new token and retrying...')
+                p.toolkit.c.usertoken_refresh()
                 if count == 2:
                     base.abort(409, detail='Cannot retrieve a new token.')
                     break
                 count += 1
             else:
                 break
-       	length = 0
-       	for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
-      	    base.response.body_file.write(chunk)
-       	    length += len(chunk)
-       	    if length >= MAX_FILE_SIZE:
-       	        details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
-       	        base.abort(409, headers={'content-encoding': ''}, detail=details)
+        length = 0
+        for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+            base.response.body_file.write(chunk)
+            length += len(chunk)
+            if length >= MAX_FILE_SIZE:
+                details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
+                base.abort(409, headers={'content-encoding': ''}, detail=details)
 
     except requests.RequestException:
         details = 'Could not proxy ngsi_resource.\nWe are working to resolve this issue as quickly as possible'
