@@ -166,9 +166,10 @@ rangelat = maxlat - minlat;
 rangelon = maxlon -  minlon;
 
 //autozoom
-autozoomlat = (12)*(1-(1/90)*rangelat);
-autozoomlon = (12)*(1-(1/90)*rangelon);
+autozoomlat = (28)*(1-(1/90)*rangelat);
+autozoomlon = (28)*(1-(1/90)*rangelon);
 autozoom =  Math.min.apply(null,[Math.round(autozoomlat),Math.round(autozoomlon)]);
+if(autozoom >= 12){autozoom=12;}
 
 var autofocus = ol.proj.transform([centerlon, centerlat], 'EPSG:4326', 'EPSG:3857');
 
