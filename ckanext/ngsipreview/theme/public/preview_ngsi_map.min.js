@@ -159,33 +159,38 @@ initialize:function(){
             var maxlon = Math.max.apply(null, listlon);
             var minlon = Math.min.apply(null, listlon);
 
-
+//centerzoom
 centerlat = (maxlat + minlat)/2; 
 centerlon = (maxlon + minlon)/2; 
-rangelat = maxlat - minlat;
-rangelon = maxlon -  minlon;
+var autofocus = ol.proj.transform([centerlon, centerlat], 'EPSG:4326', 'EPSG:3857');
+
 
 //autozoom
+rangelat = maxlat - minlat;
+rangelon = maxlon -  minlon;
 autozoomlat = (28)*(1-(1/90)*rangelat);
 autozoomlon = (28)*(1-(1/90)*rangelon);
 autozoom =  Math.min.apply(null,[Math.round(autozoomlat),Math.round(autozoomlon)]);
 if(autozoom >= 12){autozoom=12;}
 
-var autofocus = ol.proj.transform([centerlon, centerlat], 'EPSG:4326', 'EPSG:3857');
 
-  var pan = ol.animation.pan({
+function mapZoom(){
+ var pan = ol.animation.pan({
     duration: 2000,
     source: /** @type {ol.Coordinate} */ (view.getCenter())
   });
   map.beforeRender(pan);
   view.setCenter(autofocus);
+
 var zoom = ol.animation.zoom({
+  duration: 2000,
   resolution: map.getView().getResolution()
 });
 map.beforeRender(zoom);
-
-
+//map.getView().setResolution(map.getView().getResolution() / autozoom);
 map.getView().setZoom(autozoom);
+}
+setTimeout(mapZoom, 2000);
 
 
 	   // change mouse cursor when over marker
