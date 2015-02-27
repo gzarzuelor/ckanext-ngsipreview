@@ -1,2 +1,2 @@
 body{width:500px}pre{font-size:13px}.loading{font-weight:bold;font-family:sans-serif;font-size:16px;position:fixed;left:-20px;top:20px}
-.popover-content{min-width:240px;position:relative;top:5px;}.map{height:400px;width:850px;}#popup{height:40px;width:100%;}
+.popover{min-width:350px;}.popover-content{min-width:240px;position:relative;top:5px;}.map{height:400px;width:850px;}#popup{height:40px;width:100%;}
