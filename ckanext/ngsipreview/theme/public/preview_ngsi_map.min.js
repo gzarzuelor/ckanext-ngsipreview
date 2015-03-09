@@ -141,6 +141,12 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
                         var coord = geometry.getCoordinates();
 			            popup.setPosition(coord);
     			        $(element).popover('show');
+                        var pan = ol.animation.pan({
+                            duration: 1500,
+                            source: /** @type {ol.Coordinate} */ (view.getCenter())
+                        });
+                        map.beforeRender(pan);
+                        view.setCenter(coord);
   		            }
   		            else {$(element).popover('destroy');}
 	            });
