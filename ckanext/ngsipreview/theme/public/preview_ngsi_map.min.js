@@ -161,13 +161,18 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
                 centerlon = (maxlon + minlon)/2;
                 var autofocus = ol.proj.transform([centerlon, centerlat], 'EPSG:4326', 'EPSG:3857');
 
-                //autozoom range 180 = zoom 0; range 0 = zoom 28
-                rangelat = maxlat - minlat;
-                rangelon = maxlon -  minlon;
-                autozoomlat = (28)*(1-(1/180)*rangelat);
-                autozoomlon = (28)*(1-(1/180)*rangelon);
-                autozoom =  Math.min.apply(null,[Math.round(autozoomlat),Math.round(autozoomlon)]);
-                if(autozoom >= 12){autozoom = 12;}
+                //zoom
+                dist = [];
+                for(i=0;i<listlat.length;i++){
+                        distlat = listlat[i]-centerlat;
+                        distlon = listlon[i]-centerlon;
+                        dist[dist.length]=Math.sqrt(distlat*distlat+distlon*distlon);
+                }
+                zoomlist = [16,12,6,3];
+                level = Math.ceil(Math.max.apply(null, dist)/10);
+                if(level>3){level = 3;}
+                autozoom = zoomlist[level];
+
 
                 function mapZoom(){
                     var pan = ol.animation.pan({
