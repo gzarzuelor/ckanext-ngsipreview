@@ -107,11 +107,117 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
                     minZoom:2,
 	            });
 
+
+var clusterSource = new ol.source.Cluster({
+  distance: 20,
+  source: vectorSource,
+  animationMethod: ol.easing.easeOut,
+  animationDuration: 10  
+});
+
+
+
+var styleCache = {};
+var clusters = new ol.layer.Vector({
+  source: clusterSource,
+  style: function(feature, resolution) {
+    var size = feature.get('features').length;
+    var style = styleCache[size];
+    if (!style) {
+      if(size>1){
+      if(size>30){
+         style = [new ol.style.Style({
+           image: new ol.style.Circle({
+             radius: 20,
+             stroke: new ol.style.Stroke({
+             color: 'rgba(241, 128, 23, 0.3)',
+	     width: 5,
+           }),
+           fill: new ol.style.Fill({
+             color: 'rgba(241, 128, 23, 0.8)'
+           })
+           }),
+           text: new ol.style.Text({
+           text: size.toString(),
+           fill: new ol.style.Fill({
+            color: '#000'
+           })
+           })
+           })];
+         styleCache[size] = style;
+      }
+
+      else if(size>10){
+         style = [new ol.style.Style({
+           image: new ol.style.Circle({
+             radius: 15,
+             stroke: new ol.style.Stroke({
+             color: 'rgba(110, 204, 57, 0.3)',
+	     width: 4,
+           }),
+           fill: new ol.style.Fill({
+             color: 'rgba(110, 204, 57, 0.8)'
+           })
+           }),
+           text: new ol.style.Text({
+           text: size.toString(),
+           fill: new ol.style.Fill({
+            color: '#000'
+           })
+           })
+           })];
+         styleCache[size] = style;
+      }
+      else{
+         style = [new ol.style.Style({
+           image: new ol.style.Circle({
+             radius: 10,
+             stroke: new ol.style.Stroke({
+             color: 'rgba(241, 211, 87, 0.3)',
+	     width: 3,
+
+           }),
+           fill: new ol.style.Fill({
+             color: 'rgba(241, 211, 87, 0.8)'
+           })
+           }),
+           text: new ol.style.Text({
+           text: size.toString(),
+           fill: new ol.style.Fill({
+            color: '#000'
+           })
+           })
+           })];
+         styleCache[size] = style;
+
+      }
+      }
+      else{
+	style = [new ol.style.Style({
+	                 image: new ol.style.Icon({
+                                anchor: [0.5, 46],
+                                anchorXUnits: 'fraction',
+                                anchorYUnits: 'pixels',
+                                opacity: 0.75,
+                                src: '/images/marker-icon.png'
+                            })
+                 })];
+    }
+    }
+    return style;
+  }
+});
+
+
+
+
+
+
 	            var map = new ol.Map({
         	        view: view,
         	        layers: [
                 	    new ol.layer.Tile({source: new ol.source.MapQuest({layer: 'osm'})}),
-        		        vectorLayer
+        		        clusters
 		            ],
         	        target: 'map'}
         	    );
@@ -124,31 +230,49 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
 	            });
 	            map.addOverlay(popup);
 
+
+
 	            var feature;
 	            // display popup on click
 	            map.on('click', function(evt) {
-		            feature = map.forEachFeatureAtPixel(evt.pixel,
+		        feature = map.forEachFeatureAtPixel(evt.pixel,
       		        function(feature, layer){return feature;});
-  		            if (feature) {
-			            $(element).popover('destroy');
+
+			var pan = ol.animation.pan({
+                                  duration: 1500,
+                                  source: /** @type {ol.Coordinate} */ (view.getCenter())
+                        });
+                        var zoom = ol.animation.zoom({
+                                   duration: 2000,
+                                   resolution: map.getView().getResolution()
+                        });
+
+  		        if (feature){
+			    if(feature.get('features').length==1){
+		            	$(element).popover('destroy');
     			        $(element).popover({
-				            'title':'<center><strong>'+feature.get('name')+'</strong></center>',
+				            'title':'<center><strong>'+feature.get('features')[0].get('name')+'</strong></center>',
 				            'delay': { show: 500, hide: 50 },
 				            'html': true,
-      				        'content': feature.get('attrib'),
+      				        'content': feature.get('features')[0].get('attrib'),
     			        });
-                        var geometry = feature.getGeometry();
-                        var coord = geometry.getCoordinates();
-			            popup.setPosition(coord);
+	                        var geometry = feature.getGeometry();
+        	                var coord = geometry.getCoordinates();
+			        popup.setPosition(coord);
     			        $(element).popover('show');
-                        var pan = ol.animation.pan({
-                            duration: 1500,
-                            source: /** @type {ol.Coordinate} */ (view.getCenter())
-                        });
-                        map.beforeRender(pan);
-                        view.setCenter(coord);
-  		            }
-  		            else {$(element).popover('destroy');}
+                       		map.beforeRender(pan);
+                        	view.setCenter(coord);
+			   }
+			   else{
+                                map.beforeRender(pan);
+				var geometry = feature.getGeometry();
+                                var coord = geometry.getCoordinates();
+                                view.setCenter(coord);
+                    		map.beforeRender(zoom);
+                    		map.getView().setResolution(map.getView().getResolution()/4);
+			   }
+  		       }
+  		       else {$(element).popover('destroy');}
 	            });
 
                 var maxlat = Math.max.apply(null, listlat);
@@ -161,19 +285,16 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
                 centerlon = (maxlon + minlon)/2;
                 var autofocus = ol.proj.transform([centerlon, centerlat], 'EPSG:4326', 'EPSG:3857');
 
-                //zoom
                 dist = [];
                 for(i=0;i<listlat.length;i++){
                         distlat = listlat[i]-centerlat;
                         distlon = listlon[i]-centerlon;
-                        dist[dist.length]=Math.sqrt(distlat*distlat+distlon*distlon);
+                        dist[dist.length]=2*Math.sqrt(distlat*distlat+distlon*distlon);
                 }
-                zoomlist = [16,12,6,3];
-                level = Math.ceil(Math.max.apply(null, dist)/10);
-                if(level>3){level = 3;}
-                autozoom = zoomlist[level];
-
-
+		zoomlist = [14,12,6,3];
+		level = Math.ceil(Math.max.apply(null, dist)/10);
+		if(level>3){level = 3;}
+		autozoom = zoomlist[level];
                 function mapZoom(){
                     var pan = ol.animation.pan({
                         duration: 2000,
