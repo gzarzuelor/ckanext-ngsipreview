@@ -36,9 +36,7 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
 	                            var x;
 				                info += "<table style='font-size:85%;line-height:90%;'>";
         	                    for(x=0;x<attributes.length;x++){
-                                    if (attributes[x].value.length < 35){
-                                        info += "<tr><td><div><strong>"+attributes[x].name+" : </strong></div></td><td><div>"+attributes[x].value+"</div></td></tr>";
-                                    }
+                                    info += "<tr><td><div><strong>"+attributes[x].name+" : </strong></div></td><td><div>"+attributes[x].value+"</div></td></tr>";
                 	            }
 				                info += "</table>";
 			        	        dat.attrib = info;
@@ -59,9 +57,7 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
 			                dat.name = data.contextResponses[i]['contextElement']['id'];
                             var x;
                             for(x=0;x<attributes.length;x++){
-                                if (attributes[x].value.length < 35){
-                                    info += "<div><strong>"+attributes[x].name+"</strong> : "+attributes[x].value+"</div>";
-                                }
+                                info += "<div><strong>"+attributes[x].name+"</strong> : "+attributes[x].value+"</div>";
                             }
                             dat.attrib = info;
 			                pos_list[pos_list.length] = dat;
@@ -106,112 +102,101 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
                     zoom: 3,
                     minZoom:2,
 	            });
+                var clusterSource = new ol.source.Cluster({
+                  distance: 20,
+                  source: vectorSource,
+                  animationMethod: ol.easing.easeOut,
+                  animationDuration: 10
+                });
 
+                var styleCache = {};
+                var clusters = new ol.layer.Vector({
+                    source: clusterSource,
+                    style: function(feature, resolution){
+                    var size = feature.get('features').length;
+                    var style = styleCache[size];
+                    if (!style) {
+                        if(size>1){
+                            if(size>30){
+                                style = [new ol.style.Style({
+                                    image: new ol.style.Circle({
+                                        radius: 20,
+                                        stroke: new ol.style.Stroke({
+                                            color: 'rgba(241, 128, 23, 0.3)',
+                                            width: 5,
+                                        }),
+                                        fill: new ol.style.Fill({
+                                            color: 'rgba(241, 128, 23, 0.8)'
+                                        })
+                                    }),
+                                    text: new ol.style.Text({
+                                        text: size.toString(),
+                                        fill: new ol.style.Fill({
+                                            color: '#000'
+                                        })
+                                    })
+                                })];
+                                styleCache[size] = style;
+                            }
 
-var clusterSource = new ol.source.Cluster({
-  distance: 20,
-  source: vectorSource,
-  animationMethod: ol.easing.easeOut,
-  animationDuration: 10  
-});
-
-
-
-var styleCache = {};
-var clusters = new ol.layer.Vector({
-  source: clusterSource,
-  style: function(feature, resolution) {
-    var size = feature.get('features').length;
-    var style = styleCache[size];
-    if (!style) {
-      if(size>1){
-      if(size>30){
-         style = [new ol.style.Style({
-           image: new ol.style.Circle({
-             radius: 20,
-             stroke: new ol.style.Stroke({
-             color: 'rgba(241, 128, 23, 0.3)',
-	     width: 5,
-           }),
-           fill: new ol.style.Fill({
-             color: 'rgba(241, 128, 23, 0.8)'
-           })
-           }),
-           text: new ol.style.Text({
-           text: size.toString(),
-           fill: new ol.style.Fill({
-            color: '#000'
-           })
-           })
-           })];
-         styleCache[size] = style;
-      }
-
-      else if(size>10){
-         style = [new ol.style.Style({
-           image: new ol.style.Circle({
-             radius: 15,
-             stroke: new ol.style.Stroke({
-             color: 'rgba(110, 204, 57, 0.3)',
-	     width: 4,
-           }),
-           fill: new ol.style.Fill({
-             color: 'rgba(110, 204, 57, 0.8)'
-           })
-           }),
-           text: new ol.style.Text({
-           text: size.toString(),
-           fill: new ol.style.Fill({
-            color: '#000'
-           })
-           })
-           })];
-         styleCache[size] = style;
-      }
-      else{
-         style = [new ol.style.Style({
-           image: new ol.style.Circle({
-             radius: 10,
-             stroke: new ol.style.Stroke({
-             color: 'rgba(241, 211, 87, 0.3)',
-	     width: 3,
-
-           }),
-           fill: new ol.style.Fill({
-             color: 'rgba(241, 211, 87, 0.8)'
-           })
-           }),
-           text: new ol.style.Text({
-           text: size.toString(),
-           fill: new ol.style.Fill({
-            color: '#000'
-           })
-           })
-           })];
-         styleCache[size] = style;
-
-      }
-      }
-      else{
-	style = [new ol.style.Style({
-	                 image: new ol.style.Icon({
-                                anchor: [0.5, 46],
-                                anchorXUnits: 'fraction',
-                                anchorYUnits: 'pixels',
-                                opacity: 0.75,
-                                src: '/images/marker-icon.png'
-                            })
-                 })];
-    }
-    }
-    return style;
-  }
-});
-
-
-
-
-
+                            else if(size>10){
+                                style = [new ol.style.Style({
+                                    image: new ol.style.Circle({
+                                        radius: 15,
+                                        stroke: new ol.style.Stroke({
+                                            color: 'rgba(110, 204, 57, 0.3)',
+                                            width: 4,
+                                        }),
+                                        fill: new ol.style.Fill({
+                                            color: 'rgba(110, 204, 57, 0.8)'
+                                        })
+                                    }),
+                                    text: new ol.style.Text({
+                                        text: size.toString(),
+                                        fill: new ol.style.Fill({
+                                            color: '#000'
+                                        })
+                                    })
+                                })];
+                                styleCache[size] = style;
+                            }
+                            else{
+                                style = [new ol.style.Style({
+                                    image: new ol.style.Circle({
+                                        radius: 10,
+                                        stroke: new ol.style.Stroke({
+                                        color: 'rgba(241, 211, 87, 0.3)',
+                                        width: 3,
+                                        }),
+                                        fill: new ol.style.Fill({
+                                        color: 'rgba(241, 211, 87, 0.8)'
+                                        })
+                                    }),
+                                    text: new ol.style.Text({
+                                        text: size.toString(),
+                                        fill: new ol.style.Fill({
+                                            color: '#000'
+                                        })
+                                    })
+                                })];
+                                styleCache[size] = style;
+                            }
+                        }
+                        else{
+                            style = [new ol.style.Style({
+                                image: new ol.style.Icon({
+                                    anchor: [0.5, 46],
+                                    anchorXUnits: 'fraction',
+                                    anchorYUnits: 'pixels',
+                                    opacity: 0.75,
+                                    src: '/images/marker-icon.png'
+                                })
+                            })];
+                        }
+                    }
+                    return style;
+                    }
+                });
 
 	            var map = new ol.Map({
         	        view: view,
@@ -230,50 +215,48 @@ var clusters = new ol.layer.Vector({
 	            });
 	            map.addOverlay(popup);
 
-
-
 	            var feature;
 	            // display popup on click
 	            map.on('click', function(evt) {
-		        feature = map.forEachFeatureAtPixel(evt.pixel,
-      		        function(feature, layer){return feature;});
+                    feature = map.forEachFeatureAtPixel(evt.pixel,
+                    function(feature, layer){return feature;});
 
-			var pan = ol.animation.pan({
-                                  duration: 1500,
-                                  source: /** @type {ol.Coordinate} */ (view.getCenter())
-                        });
-                        var zoom = ol.animation.zoom({
-                                   duration: 2000,
-                                   resolution: map.getView().getResolution()
-                        });
+                    var pan = ol.animation.pan({
+                          duration: 1500,
+                          source: /** @type {ol.Coordinate} */ (view.getCenter())
+                    });
+                    var zoom = ol.animation.zoom({
+                               duration: 2000,
+                               resolution: map.getView().getResolution()
+                    });
 
-  		        if (feature){
-			    if(feature.get('features').length==1){
-		            	$(element).popover('destroy');
-    			        $(element).popover({
-				            'title':'<center><strong>'+feature.get('features')[0].get('name')+'</strong></center>',
-				            'delay': { show: 500, hide: 50 },
-				            'html': true,
-      				        'content': feature.get('features')[0].get('attrib'),
-    			        });
-	                        var geometry = feature.getGeometry();
-        	                var coord = geometry.getCoordinates();
-			        popup.setPosition(coord);
-    			        $(element).popover('show');
-                       		map.beforeRender(pan);
-                        	view.setCenter(coord);
-			   }
-			   else{
-                                map.beforeRender(pan);
-				var geometry = feature.getGeometry();
-                                var coord = geometry.getCoordinates();
-                                view.setCenter(coord);
-                    		map.beforeRender(zoom);
-                    		map.getView().setResolution(map.getView().getResolution()/4);
-			   }
-  		       }
-  		       else {$(element).popover('destroy');}
-	            });
+                    if (feature){
+                        if(feature.get('features').length==1){
+                            $(element).popover('destroy');
+                            $(element).popover({
+                                'title':'<center><strong>'+feature.get('features')[0].get('name')+'</strong></center>',
+                                'delay': { show: 500, hide: 50 },
+                                'html': true,
+                                'content': feature.get('features')[0].get('attrib'),
+                            });
+                            var geometry = feature.getGeometry();
+                            var coord = geometry.getCoordinates();
+                            popup.setPosition(coord);
+                            $(element).popover('show');
+                            map.beforeRender(pan);
+                            view.setCenter(coord);
+                        }
+                        else{
+                            map.beforeRender(pan);
+                            var geometry = feature.getGeometry();
+                            var coord = geometry.getCoordinates();
+                            view.setCenter(coord);
+                            map.beforeRender(zoom);
+                            map.getView().setResolution(map.getView().getResolution()/4);
+                        }
+                    }
+                        else {$(element).popover('destroy');}
+                });
 
                 var maxlat = Math.max.apply(null, listlat);
                 var minlat = Math.min.apply(null, listlat);
@@ -287,14 +270,15 @@ var clusters = new ol.layer.Vector({
 
                 dist = [];
                 for(i=0;i<listlat.length;i++){
-                        distlat = listlat[i]-centerlat;
-                        distlon = listlon[i]-centerlon;
-                        dist[dist.length]=2*Math.sqrt(distlat*distlat+distlon*distlon);
+                    distlat = listlat[i]-centerlat;
+                    distlon = listlon[i]-centerlon;
+                    dist[dist.length]=2*Math.sqrt(distlat*distlat+distlon*distlon);
                 }
-		zoomlist = [14,12,6,3];
-		level = Math.ceil(Math.max.apply(null, dist)/10);
-		if(level>3){level = 3;}
-		autozoom = zoomlist[level];
+                zoomlist = [14,13,12,11,10,9,8,7,6,5,4,3];
+                level = Math.ceil((10*Math.max.apply(null, dist))*1,2);
+                if(level>11){level = 11;}
+                autozoom = zoomlist[level];
+
                 function mapZoom(){
                     var pan = ol.animation.pan({
                         duration: 2000,
@@ -326,7 +310,7 @@ var clusters = new ol.layer.Vector({
 	        },
             error:function(jqXHR,textStatus,errorThrown){
 	            if(textStatus=='error'&&jqXHR.responseText.length){
-		            document.getElementById('map').style.height = '0px';
+                    document.getElementById('map').style.height = '0px';
                     document.getElementById('map').style.border = '0px';
                 }
 	            else{document.getElementById('map').style.height = '0px';;}}});}};});
