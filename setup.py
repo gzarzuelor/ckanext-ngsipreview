@@ -37,9 +37,7 @@ setup(
     namespace_packages=['ckanext', 'ckanext.ngsipreview'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        # -*- Extra requirements: -*-
-    ],
+    install_requires=['requests'],
     entry_points='''
         [ckan.plugins]
         # Add plugins here, e.g.

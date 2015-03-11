@@ -19,7 +19,7 @@
 from logging import getLogger
 import urlparse
 import requests
-
+import json
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.plugins as p
@@ -47,7 +47,9 @@ def proxy_ngsi_resource(context, data_dict):
         while True:
             headers = {'X-Auth-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
             if url.lower().find('/querycontext') != -1:
-                payload = resource['payload']
+                resource['payload'] = resource['payload'].replace("'", '"')
+                resource['payload'] = resource['payload'].replace(" ", "")
+                payload = json.dumps(json.loads(resource['payload']))
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
