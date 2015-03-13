@@ -71,11 +71,6 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
                     document.getElementById('map').style.height = '0px';
                     document.getElementById('map').style.border = '0px';
                 }
-                else{
-                    document.getElementById('map').style.height = '400px';
-                    document.getElementById('map').style.border = '1px';
-                }
-
 
 	            var iconStyle = new ol.style.Style({
 		            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
