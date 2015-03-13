@@ -1,2 +1,3 @@
 body{width:500px}pre{font-size:13px}.loading{font-weight:bold;font-family:sans-serif;font-size:16px;position:fixed;left:-20px;top:20px}
-.popover{min-width:350px;}.popover-content{min-width:240px;position:relative;top:5px;}.map{height:400px;width:850px;border:1px solid rgba(0, 0, 0, 0.15);border-radius: 4px;}#popup{height:40px;width:100%;}
+.popover{min-width:350px;}.popover-content{min-width:240px;position:relative;top:5px;}.map{width:850px;border:0px solid rgba(0, 0, 0, 0.15);border-radius: 4px;}#popup{height:40px;width:100%;}
+
