@@ -74,7 +74,7 @@ def proxy_ngsi_resource(context, data_dict):
                 base.abort(409, headers={'content-encoding': ''}, detail=details)
 
     except requests.RequestException:
-        details = 'Could not proxy ngsi_resource.\nWe are working to resolve this issue as quickly as possible'
+        details = 'Could not proxy ngsi_resource. We are working to resolve this issue as quickly as possible'
         base.abort(409, detail=details)
 
 
