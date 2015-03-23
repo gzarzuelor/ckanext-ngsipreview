@@ -6,3 +6,6 @@
 
 #Python
 *.pyc
+
+#CKAN
+ckanext_ngsipreview.egg-info/*
