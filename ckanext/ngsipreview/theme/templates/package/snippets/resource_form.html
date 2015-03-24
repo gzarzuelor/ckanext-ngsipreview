@@ -39,7 +39,7 @@
     {% if action.find('/resource_edit/') != -1 %}
      {% if data.url.lower().find('/querycontext')!= -1 and data.format in ['ngsi9','ngsi10'] %}
       {% block basic_fields_oauth_req %}
-        {{ form.checkbox('oauth_req', value=True id='field-oauth_req', label=_('Requires OAuth2'), placeholder='', checked=false) }}
+        {{ form.checkbox('oauth_req', value=True, id='field-oauth_req', label=_('Requires OAuth2'), placeholder='', checked=false) }}
       {% endblock %}
       {% block basic_fields_payload %}
         {{ form.textarea('payload', id='field-payload', label=_('Payload'), placeholder=_('JSON query'), value=data.payload, error=errors.payload) }}
