@@ -36,7 +36,7 @@ def proxy_ngsi_resource(context, data_dict):
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
     url = resource['url']
-    if 'oauth_req' in resource and resource['oauth_req'] is True:
+    if 'oauth_req' in resource and resource['oauth_req'] == 'true':
         token = p.toolkit.c.usertoken['access_token']
         headers = {'X-Auth-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
     else:
@@ -61,7 +61,7 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.charset = r.encoding
             if r.status_code == 401:
                 log.info('ERROR 401 token expired. Retrieving new token and retrying...')
-                if 'oauth_req' in resource and resource['oauth_req'] is True:
+                if 'oauth_req' in resource and resource['oauth_req'] == 'true':
                     p.toolkit.c.usertoken_refresh()
                 if count == 2:
                     base.abort(409, detail='Cannot retrieve a new token.')
