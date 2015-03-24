@@ -36,7 +36,11 @@ def proxy_ngsi_resource(context, data_dict):
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
     url = resource['url']
-    token = p.toolkit.c.usertoken['access_token']
+    if 'oauth_req' in resource['oauth_req'] and resource['oauth_req'] is True:
+        token = p.toolkit.c.usertoken['access_token']
+        headers = {'X-Auth-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
+    else:
+        headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
     parts = urlparse.urlsplit(url)
     if not parts.scheme or not parts.netloc:
@@ -45,7 +49,6 @@ def proxy_ngsi_resource(context, data_dict):
     try:
         count = 0
         while True:
-            headers = {'X-Auth-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
             if url.lower().find('/querycontext') != -1:
                 resource['payload'] = resource['payload'].replace("'", '"')
                 resource['payload'] = resource['payload'].replace(" ", "")
@@ -58,7 +61,8 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.charset = r.encoding
             if r.status_code == 401:
                 log.info('ERROR 401 token expired. Retrieving new token and retrying...')
-                p.toolkit.c.usertoken_refresh()
+                if 'oauth_req' in resource['oauth_req'] and resource['oauth_req'] is True:
+                    p.toolkit.c.usertoken_refresh()
                 if count == 2:
                     base.abort(409, detail='Cannot retrieve a new token.')
                     break
