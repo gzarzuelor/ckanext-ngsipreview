@@ -45,7 +45,7 @@
             {{ form.input('tenant', id='tenant', label=_('Tenant'), placeholder=_('Tenant'), value=data.tenant, error=errors.tenant, classes=['control-full']) }}
         {% endblock %}
         {% block basic_fields_oauth_req %}
-            {{ form.custom(names=('oauth_req', 'oauth_req'), id='field-custom', label=_('Requires OAuth2'),  values=('true', 'false')) }}
+            {{ form.select('oauth_req', label=_('Oauth-Token'), options=[{'value': 'true', 'text': _('required')},{'value': 'false', 'text': _('not required')}], selected="true", error=errors.oauth_req) }}
         {% endblock %}
         {% block basic_fields_payload %}
             {{ form.textarea('payload', id='field-payload', label=_('Payload'), placeholder=_('JSON query'), value=data.payload, error=errors.payload) }}
