@@ -20,7 +20,6 @@ from logging import getLogger
 import urlparse
 import requests
 import json
-import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.plugins as p
@@ -59,7 +58,6 @@ def proxy_ngsi_resource(context, data_dict):
             if r.status_code == 401 and 'oauth_req' in resource and resource['oauth_req'] == 'true':
                 details = 'ERROR 401 token expired. Retrieving new token and retrying...'
                 log.info(details)
-                h.flash_error(details, allow_html=False)
                 p.toolkit.c.usertoken_refresh()
             else:
                 break
