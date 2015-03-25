@@ -98,7 +98,8 @@ class NGSIPreview(p.SingletonPlugin):
                     return {'can_preview': True, 'quality': 2}
             else:
                 return {'can_preview': False, 'fixable': 'Enable resource_proxy', 'quality': 2}
-        return {'can_preview': False}
+        else:
+            return {'can_preview': False}
 
     def setup_template_variables(self, context, data_dict):
         if self.proxy_is_enabled and not data_dict['resource']['on_same_domain']:
