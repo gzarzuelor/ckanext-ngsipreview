@@ -57,8 +57,6 @@ def proxy_ngsi_resource(context, data_dict):
             else:
                 r = requests.get(url, headers=headers, stream=True)
 
-            base.response.content_type = r.headers['content-type']
-            base.response.charset = r.encoding
             if r.status_code == 401:
                 if 'oauth_req' not in resource or resource['oauth_req'] == 'false':
                     details = 'This query may need Oauth-token, please check if the token field on resource_edit is correct.'
@@ -74,6 +72,8 @@ def proxy_ngsi_resource(context, data_dict):
                     count += 1
             else:
                 r.raise_for_status()
+                base.response.content_type = r.headers['content-type']
+                base.response.charset = r.encoding
                 break
         length = 0
         for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
