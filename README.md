@@ -1,8 +1,7 @@
 CKAN ckanext-ngsipreview
 =====================
 
-CKAN extension that will give you the ability to generate real-time resources provided by a Context broker. The extension uses your IDM token, so you must be logged in to be able to see this resources properly.
-
+CKAN extension that will give you the ability to generate real-time resources provided by a Context broker. Some resources may need your IDM token, so you must be logged in to be able to see those resources properly.
 
 Requirements
 ------------

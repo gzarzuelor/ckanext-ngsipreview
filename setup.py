@@ -19,19 +19,21 @@
 from setuptools import setup, find_packages
 
 
-version = '0.1'
+version = '0.2'
 
 setup(
     name='ckanext-ngsipreview',
     version=version,
     description="",
-    long_description='''
+    long_description='''CKAN extension that will give you the ability to generate real-time resources
+    provided by a Context broker. Some resources may need your IDM token, so you must be logged in to
+    be able to see those resources properly.
     ''',
     classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
-    author='',
-    author_email='',
-    url='',
+    author='Guillermo Zarzuelo',
+    author_email='gzarrub@gmail.com',
+    url='https://github.com/gzarrub/ckanext-ngsipreview',
     license='',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     namespace_packages=['ckanext', 'ckanext.ngsipreview'],
