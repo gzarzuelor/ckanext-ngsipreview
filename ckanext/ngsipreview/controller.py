@@ -75,6 +75,7 @@ def proxy_ngsi_resource(context, data_dict):
                 base.response.content_type = r.headers['content-type']
                 base.response.charset = r.encoding
                 break
+                
         length = 0
         for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
             base.response.body_file.write(chunk)
