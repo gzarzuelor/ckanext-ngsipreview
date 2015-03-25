@@ -20,6 +20,7 @@ from logging import getLogger
 import urlparse
 import requests
 import json
+import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.plugins as p
@@ -47,7 +48,6 @@ def proxy_ngsi_resource(context, data_dict):
         base.abort(409, detail='Invalid URL.')
 
     try:
-        count = 0
         for i in range(2):
             if url.lower().find('/querycontext') != -1:
                 resource['payload'] = resource['payload'].replace("'", '"')
@@ -56,28 +56,27 @@ def proxy_ngsi_resource(context, data_dict):
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
-            print i
-            if r.status_code != 401:
-                i = 3
+            if r.status_code == 401 and 'oauth_req' in resource and resource['oauth_req'] == 'true':
+                details = 'ERROR 401 token expired. Retrieving new token and retrying...'
+                log.info(details)
+                h.flash_error(details, allow_html=False)
+                p.toolkit.c.usertoken_refresh()
+            else:
+                break
 
         if r.status_code == 401:
             if 'oauth_req' not in resource or resource['oauth_req'] == 'false':
                 details = 'This query may need Oauth-token, please check if the token field on resource_edit is correct.'
                 log.info(details)
                 base.abort(409, detail=details)
-                break
             else:
-                log.info('ERROR 401 token expired. Retrieving new token and retrying...')
-                p.toolkit.c.usertoken_refresh()
-                if count == 2:
-                    base.abort(409, detail='Cannot retrieve a new token.')
-                    break
-                count += 1
+                base.abort(409, detail='Cannot retrieve a new token.')
+
         else:
             r.raise_for_status()
             base.response.content_type = r.headers['content-type']
             base.response.charset = r.encoding
-            break
+
 
         length = 0
         for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
