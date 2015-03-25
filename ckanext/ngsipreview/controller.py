@@ -56,12 +56,14 @@ def proxy_ngsi_resource(context, data_dict):
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
-            r.raise_for_status()
+
             base.response.content_type = r.headers['content-type']
             base.response.charset = r.encoding
             if r.status_code == 401:
                 if 'oauth_req' not in resource or resource['oauth_req'] == 'false':
-                    log.info('This query may need Oauth-token, please check if the token field on resource_edit is correct.')
+                    details = 'This query may need Oauth-token, please check if the token field on resource_edit is correct.'
+                    log.info(details)
+                    base.abort(409, detail=details)
                     break
                 else:
                     log.info('ERROR 401 token expired. Retrieving new token and retrying...')
@@ -71,6 +73,7 @@ def proxy_ngsi_resource(context, data_dict):
                         break
                     count += 1
             else:
+                r.raise_for_status()
                 break
         length = 0
         for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
