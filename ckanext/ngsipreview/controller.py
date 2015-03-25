@@ -60,13 +60,16 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.content_type = r.headers['content-type']
             base.response.charset = r.encoding
             if r.status_code == 401:
-                log.info('ERROR 401 token expired. Retrieving new token and retrying...')
-                if 'oauth_req' in resource and resource['oauth_req'] == 'true':
-                    p.toolkit.c.usertoken_refresh()
-                if count == 2:
-                    base.abort(409, detail='Cannot retrieve a new token.')
+                if 'oauth_req' not in resource or resource['oauth_req'] == 'false':
+                    log.info('This query may need Oauth-token, please check if the token field on resource_edit is correct.')
                     break
-                count += 1
+                else:
+                    log.info('ERROR 401 token expired. Retrieving new token and retrying...')
+                    p.toolkit.c.usertoken_refresh()
+                    if count == 2:
+                        base.abort(409, detail='Cannot retrieve a new token.')
+                        break
+                    count += 1
             else:
                 break
         length = 0
