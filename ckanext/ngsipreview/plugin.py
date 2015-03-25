@@ -81,7 +81,7 @@ class NGSIPreview(p.SingletonPlugin):
         pattern = "/dataset/"+data_dict['package']['name']+"/resource/"
         if format_lower in self.NGSI_FORMATS:
             if resource['on_same_domain'] or self.proxy_is_enabled:
-                if self.check_query(resource) and request.path.find(pattern) != -1 and not toolkit.c.user:
+                if self.check_query(resource) and request.path.find(pattern) != -1 and oauth_req == 'true' and not toolkit.c.user:
                     details = "In order to see this resource properly, you need to be logged in"
                     h.flash_error(details, allow_html=False)
                     return {'can_preview': False, 'fixable': details, 'quality': 2}
