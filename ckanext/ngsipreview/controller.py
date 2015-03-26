@@ -55,6 +55,7 @@ def proxy_ngsi_resource(context, data_dict):
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
+
             if r.status_code == 401 and 'oauth_req' in resource and resource['oauth_req'] == 'true':
                 details = 'ERROR 401 token expired. Retrieving new token and retrying...'
                 log.info(details)
