@@ -84,17 +84,21 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.body_file.write(chunk)
             length += len(chunk)
             if length >= MAX_FILE_SIZE:
-                details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
+                details = 'Content is too large to be proxied. Complete the Context Broker query with pagination parameters to resolve this issue.'
                 base.abort(409, headers={'content-encoding': ''}, detail=details)
 
     except ValueError:
         details = 'There is a problem with the payload, please check if the query is properly parsed.'
         base.abort(409, detail=details)
-
-    except requests.RequestException:
+    except requests.HTTPError:
         details = 'Could not proxy ngsi_resource. We are working to resolve this issue as quickly as possible'
         base.abort(409, detail=details)
-
+    except requests.ConnectionError:
+        details = 'Could not proxy ngsi_resource because a connection error occurred.'
+        base.abort(502, detail=details)
+    except requests.Timeout:
+        details = 'Could not proxy ngsi_resource because the connection timed out.'
+        base.abort(504, detail=details)
 
 
 class ProxyNGSIController(base.BaseController):
