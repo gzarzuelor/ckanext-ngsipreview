@@ -35,14 +35,21 @@ def proxy_ngsi_resource(context, data_dict):
     resource_id = data_dict['resource_id']
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
-    url = resource['url']
+
     if 'oauth_req' in resource and resource['oauth_req'] == 'true':
         token = p.toolkit.c.usertoken['access_token']
         headers = {'X-Auth-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
     else:
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
+    if 'tenant' in resource:
+        headers['Fiware-Service'] = resource['tenant']
+    if 'service_path' in resource:
+        headers['Fiware-ServicePath'] = resource['service_path']
+
+    url = resource['url']
     parts = urlparse.urlsplit(url)
+
     if not parts.scheme or not parts.netloc:
         base.abort(409, detail='Invalid URL.')
 
