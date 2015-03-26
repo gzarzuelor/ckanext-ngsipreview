@@ -35,14 +35,21 @@ def proxy_ngsi_resource(context, data_dict):
     resource_id = data_dict['resource_id']
     log.info('Proxify resource {id}'.format(id=resource_id))
     resource = logic.get_action('resource_show')(context, {'id': resource_id})
-    url = resource['url']
+
     if 'oauth_req' in resource and resource['oauth_req'] == 'true':
         token = p.toolkit.c.usertoken['access_token']
         headers = {'X-Auth-Token': token, 'Content-Type': 'application/json', 'Accept': 'application/json'}
     else:
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 
+    if 'tenant' in resource:
+        headers['Fiware-Service'] = resource['tenant']
+    if 'service_path' in resource:
+        headers['Fiware-ServicePath'] = resource['service_path']
+
+    url = resource['url']
     parts = urlparse.urlsplit(url)
+
     if not parts.scheme or not parts.netloc:
         base.abort(409, detail='Invalid URL.')
 
@@ -51,7 +58,9 @@ def proxy_ngsi_resource(context, data_dict):
             if url.lower().find('/querycontext') != -1:
                 resource['payload'] = resource['payload'].replace("'", '"')
                 resource['payload'] = resource['payload'].replace(" ", "")
+
                 payload = json.dumps(json.loads(resource['payload']))
+
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
@@ -82,12 +91,21 @@ def proxy_ngsi_resource(context, data_dict):
             base.response.body_file.write(chunk)
             length += len(chunk)
             if length >= MAX_FILE_SIZE:
-                details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
+                details = 'Content is too large to be proxied. Complete the Context Broker query with pagination parameters to resolve this issue.'
                 base.abort(409, headers={'content-encoding': ''}, detail=details)
 
-    except requests.RequestException:
+    except ValueError:
+        details = 'There is a problem with the payload, please check if the query is properly parsed.'
+        base.abort(409, detail=details)
+    except requests.HTTPError:
         details = 'Could not proxy ngsi_resource. We are working to resolve this issue as quickly as possible'
         base.abort(409, detail=details)
+    except requests.ConnectionError:
+        details = 'Could not proxy ngsi_resource because a connection error occurred.'
+        base.abort(502, detail=details)
+    except requests.Timeout:
+        details = 'Could not proxy ngsi_resource because the connection timed out.'
+        base.abort(504, detail=details)
 
 
 class ProxyNGSIController(base.BaseController):

@@ -6,8 +6,7 @@ CKAN extension that will give you the ability to generate real-time resources pr
 Requirements
 ------------
 
-* [OAuth2 CKAN Extension](https://github.com/conwetlab/ckanext-oauth2/). This extension is needed since the requests sent to the ContextBroker must include the OAuth2 credentials to identify the user that is creating the offering.
-
+* [OAuth2 CKAN Extension](https://github.com/conwetlab/ckanext-oauth2/). OAuth2 CKAN Extension. This extension might be needed since some the requests sent to the ContextBroker must include the OAuth2 credentials to identify the user that is creating the offering.
 
 Installation
 ------------
