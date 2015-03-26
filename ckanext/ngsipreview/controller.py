@@ -51,7 +51,9 @@ def proxy_ngsi_resource(context, data_dict):
             if url.lower().find('/querycontext') != -1:
                 resource['payload'] = resource['payload'].replace("'", '"')
                 resource['payload'] = resource['payload'].replace(" ", "")
+
                 payload = json.dumps(json.loads(resource['payload']))
+
                 r = requests.post(url, headers=headers, data=payload, stream=True)
             else:
                 r = requests.get(url, headers=headers, stream=True)
@@ -65,7 +67,7 @@ def proxy_ngsi_resource(context, data_dict):
 
         if r.status_code == 401:
             if 'oauth_req' not in resource or resource['oauth_req'] == 'false':
-                details = 'This query may need Oauth-token, please check if the token field on resource_edit is correct.'
+                details = 'There is a problem with the payload, please check if the query syntax is properly parsed.'
                 log.info(details)
                 base.abort(409, detail=details)
             else:
@@ -84,6 +86,10 @@ def proxy_ngsi_resource(context, data_dict):
             if length >= MAX_FILE_SIZE:
                 details = 'Content is too large to be proxied. Complete the Context Broker query \nwith pagination parameters to resolve this issue.'
                 base.abort(409, headers={'content-encoding': ''}, detail=details)
+
+    except ValueError:
+        details = 'There is a problem with the payload, please check if the query is properly parsed.'
+        base.abort(409, detail=details)
 
     except requests.RequestException:
         details = 'Could not proxy ngsi_resource. We are working to resolve this issue as quickly as possible'
