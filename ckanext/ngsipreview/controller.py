@@ -67,7 +67,7 @@ def proxy_ngsi_resource(context, data_dict):
 
         if r.status_code == 401:
             if 'oauth_req' not in resource or resource['oauth_req'] == 'false':
-                details = 'There is a problem with the payload, please check if the query syntax is properly parsed.'
+                details = 'This query may need Oauth-token, please check if the token field on resource_edit is correct.'
                 log.info(details)
                 base.abort(409, detail=details)
             else:
@@ -88,7 +88,7 @@ def proxy_ngsi_resource(context, data_dict):
                 base.abort(409, headers={'content-encoding': ''}, detail=details)
 
     except (requests.RequestException, ValueError) as e:
-        
+
         details = 'There is a problem with the payload, please check if the query is properly parsed.'
         details = 'Could not proxy ngsi_resource. We are working to resolve this issue as quickly as possible'
         base.abort(409, detail=details)
