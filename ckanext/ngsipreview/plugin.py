@@ -72,15 +72,20 @@ class NGSIPreview(p.SingletonPlugin):
 
     def can_preview(self, data_dict):
         resource = data_dict['resource']
+        if 'oauth_req' not in resource:
+            oauth_req = 'false'
+        else:
+            oauth_req = resource['oauth_req']
+
         format_lower = resource['format'].lower()
         pattern = "/dataset/"+data_dict['package']['name']+"/resource/"
         if format_lower in self.NGSI_FORMATS:
             if resource['on_same_domain'] or self.proxy_is_enabled:
-                if self.check_query(resource) and request.path.find(pattern) != -1 and not toolkit.c.user:
+                if self.check_query(resource) and request.path.find(pattern) != -1 and oauth_req == 'true' and not toolkit.c.user:
                     details = "In order to see this resource properly, you need to be logged in"
                     h.flash_error(details, allow_html=False)
                     return {'can_preview': False, 'fixable': details, 'quality': 2}
-                elif self.check_query(resource) and request.path.find(pattern) != -1 and not self.oauth2_is_enabled:
+                elif self.check_query(resource) and request.path.find(pattern) != -1 and oauth_req == 'true' and not self.oauth2_is_enabled:
                    details = "Enable oauth2 extension"
                    h.flash_error(details, allow_html=False)
                    return {'can_preview': False, 'fixable': details, 'quality': 2}
@@ -93,7 +98,8 @@ class NGSIPreview(p.SingletonPlugin):
                     return {'can_preview': True, 'quality': 2}
             else:
                 return {'can_preview': False, 'fixable': 'Enable resource_proxy', 'quality': 2}
-        return {'can_preview': False}
+        else:
+            return {'can_preview': False}
 
     def setup_template_variables(self, context, data_dict):
         if self.proxy_is_enabled and not data_dict['resource']['on_same_domain']:
