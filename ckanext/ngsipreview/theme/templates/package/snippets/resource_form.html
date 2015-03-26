@@ -52,13 +52,13 @@
         {% endblock %}
      {% endif %}
      {% if data.url.lower().find('/contextentities')!= -1 and data.format in ['ngsi9','ngsi10'] %}
-        {% block basic_fields_service_path %}
+        {% block basic_fields_service_path_ce %}
             {{ form.input('service_path', id='service-path', label=_('Service Path'), placeholder=_('Service Path'), value=data.service_path, error=errors.service_path, classes=['control-full']) }}
         {% endblock %}
-        {% block basic_fields_tenant %}
+        {% block basic_fields_tenant_ce %}
             {{ form.input('tenant', id='tenant', label=_('Tenant'), placeholder=_('Tenant'), value=data.tenant, error=errors.tenant, classes=['control-full']) }}
         {% endblock %}
-        {% block basic_fields_oauth_req %}
+        {% block basic_fields_oauth_req_ce %}
             {{ form.select('oauth_req', label=_('OAuth-Token'), options=[{'value': 'true', 'text': _('required')},{'value': 'false', 'text': _('not required')}], selected=data.oauth_req, error=errors.oauth_req) }}
         {% endblock %}
      {% endif %}
