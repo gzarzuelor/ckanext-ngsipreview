@@ -20,6 +20,12 @@ ckan.module('ngsipreviewmap',function(jQuery,_){
 	            var listlat = new Array();
                 var listlon = new Array();
 
+                if(typeof(data.contextElement) != 'undefined'){
+                    var contextElement = data;
+                    data = {};
+                    data['contextResponses'] = [contextElement];
+                }
+
 	            if(typeof(data.contextResponses) != 'undefined'){
 	                for(i=0;i<data.contextResponses.length;i++){
 		                var lat = '';
