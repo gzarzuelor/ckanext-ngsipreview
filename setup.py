@@ -8,7 +8,7 @@
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# FlaskContextProvider is distributed in the hope that it will be useful,
+# Ckanext-ngsipreview is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero
 # General Public License for more details.
@@ -29,12 +29,15 @@ setup(
     provided by a Context broker. Some resources may need your IDM token, so you must be logged in to
     be able to see those resources properly.
     ''',
-    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    keywords='',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+        'Programming Language :: Python :: 2.7',
+    ],
+
     author='Guillermo Zarzuelo',
     author_email='gzarrub@gmail.com',
     url='https://github.com/gzarrub/ckanext-ngsipreview',
-    license='',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     namespace_packages=['ckanext', 'ckanext.ngsipreview'],
     include_package_data=True,
