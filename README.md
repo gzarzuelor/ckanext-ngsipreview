@@ -1,5 +1,5 @@
-CKAN ckanext-ngsipreview
-=====================
+CKAN ckanext-ngsipreview (DEPRECATED see [ckanext-ngsiview](https://github.com/gzarrub/ckanext-ngsiview/))
+=================================================================
 
 CKAN extension that will give you the ability to generate real-time resources provided by a Context broker. Some resources may need your IDM token, so you must be logged in to be able to see those resources properly.
 
@@ -7,7 +7,7 @@ Requirements
 ------------
 
 * [OAuth2 CKAN Extension](https://github.com/conwetlab/ckanext-oauth2/). OAuth2 CKAN Extension. This extension might be needed since some the requests sent to the ContextBroker must include the OAuth2 credentials to identify the user that is creating the offering.
-
+* CKAN 2.2
 Installation
 ------------
 Install this extension in your CKAN is instance is as easy as intall any other CKAN extension.
